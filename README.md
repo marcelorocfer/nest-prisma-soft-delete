@@ -12,23 +12,49 @@ Este pacote fornece uma solução robusta e moderna para implementar Soft Delete
 
 ## 📦 Instalação e Setup
 
-### 1. Registrar a Extensão no PrismaService
+Para instalar o pacote no seu projeto (ex: `new-modelo-soft-delete`), siga os passos abaixo:
 
-A partir do Prisma 5, o uso de `Middlewares` (`$use`) foi depreciado. Este pacote utiliza o novo padrão de **Extensions** (`$extends`).
+### 1. Instalar via Git
+
+Este pacote **não está publicado no NPM**. Para utilizá-lo, você deve instalá-lo diretamente do GitHub:
+
+```bash
+npm install https://github.com/marcelorocfer/nest-prisma-soft-delete.git
+```
+
+### 2. Configurar o Schema Prisma
+
+Adicione o campo `deletedAt` nos modelos que deseja habilitar o Soft Delete:
+
+```prisma
+model User {
+  id        Int       @id @default(autoincrement())
+  // ... outros campos
+  deletedAt DateTime? 
+}
+```
+
+Não esqueça de rodar a migration:
+```bash
+npx prisma migrate dev --name add_soft_delete_to_user
+```
+
+### 3. Registrar a Extensão no PrismaService
+
+No seu `PrismaService`, importe e configure a extensão:
 
 ```typescript
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { softDeleteExtension } from './prisma-soft-delete';
+import { softDeleteExtension } from 'nest-prisma-soft-delete'; // Nome do pacote após instalação
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super();
-    // Retornar o cliente estendido para que o NestJS use a instância com Soft Delete
     return this.$extends(
       softDeleteExtension({
-        models: ['User', 'Post'], // Liste aqui os models que possuem soft delete
+        models: ['User'], // Liste os models aqui
       }),
     ) as any;
   }
@@ -94,7 +120,7 @@ Para operações avançadas, estenda o `SoftDeleteRepository`.
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SoftDeleteRepository } from '../prisma-soft-delete';
+import { SoftDeleteRepository } from 'nest-prisma-soft-delete';
 import { User, Prisma } from '@prisma/client';
 
 @Injectable()
