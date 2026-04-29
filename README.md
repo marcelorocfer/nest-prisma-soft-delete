@@ -24,20 +24,26 @@ npm install https://github.com/marcelorocfer/nest-prisma-soft-delete.git
 
 ### 2. Configurar o Schema Prisma
 
-Adicione o campo `deletedAt` nos modelos que deseja habilitar o Soft Delete:
+Para o Soft Delete funcionar, o seu modelo **precisa seguir algumas regras obrigatórias**:
+
+1. Adicionar o campo com o nome **exato** de `deletedAt`.
+2. O tipo deve ser obrigatoriamente `DateTime?` (opcional).
+3. Caso seu banco de dados use `snake_case`, você deve mapear usando `@map`, mas o nome da propriedade Prisma deve se manter `deletedAt`.
 
 ```prisma
 model User {
   id        Int       @id @default(autoincrement())
   // ... outros campos
-  deletedAt DateTime? 
+  deletedAt DateTime? // OBRIGATÓRIO: O nome deve ser exatamente 'deletedAt'
+  // deletedAt DateTime? @map("deleted_at") // Use assim se precisar de snake_case no banco
 }
 ```
 
-Não esqueça de rodar a migration:
+Não esqueça de rodar a migration após alterar o schema:
 ```bash
 npx prisma migrate dev --name add_soft_delete_to_user
 ```
+
 
 ### 3. Registrar a Extensão no PrismaService
 
@@ -54,7 +60,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     super();
     return this.$extends(
       softDeleteExtension({
-        models: ['User'], // Liste os models aqui
+        models: ['User'], // ATENÇÃO: O nome deve ser em PascalCase, exatamente como definido no schema Prisma!
       }),
     ) as any;
   }

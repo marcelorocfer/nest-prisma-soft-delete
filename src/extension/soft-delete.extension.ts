@@ -57,7 +57,8 @@ export function softDeleteExtension(options: SoftDeleteOptions) {
           async delete({ model, args, query }) {
             if (!options.models.includes(model as any)) return query(args);
             
-            return (client as any)[model].update({
+            const delegate = model.charAt(0).toLowerCase() + model.slice(1);
+            return (client as any)[delegate].update({
               where: args.where,
               data: { deletedAt: new Date() },
             });
@@ -65,11 +66,13 @@ export function softDeleteExtension(options: SoftDeleteOptions) {
           async deleteMany({ model, args, query }) {
             if (!options.models.includes(model as any)) return query(args);
             
-            return (client as any)[model].updateMany({
+            const delegate = model.charAt(0).toLowerCase() + model.slice(1);
+            return (client as any)[delegate].updateMany({
               where: args.where,
               data: { deletedAt: new Date() },
             });
           },
+
         },
       },
     });
