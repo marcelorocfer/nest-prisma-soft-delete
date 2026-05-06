@@ -1,5 +1,5 @@
 {
-  "name": "nest-prisma-soft-delete",
+  "name": "@marcelorocfer/nest-prisma-soft-delete",
   "version": "1.0.0",
   "description": "Robust and modern Soft Delete implementation for Prisma ORM in NestJS using Extensions.",
   "main": "dist/index.js",
