@@ -42,5 +42,8 @@
   "homepage": "https://github.com/marcelorocfer/nest-prisma-soft-delete",
   "bugs": {
     "url": "https://github.com/marcelorocfer/nest-prisma-soft-delete/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
