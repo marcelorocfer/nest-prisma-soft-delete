@@ -34,5 +34,13 @@
   "peerDependencies": {
     "@nestjs/common": "^10.0.0",
     "@prisma/client": ">=5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcelorocfer/nest-prisma-soft-delete.git"
+  },
+  "homepage": "https://github.com/marcelorocfer/nest-prisma-soft-delete",
+  "bugs": {
+    "url": "https://github.com/marcelorocfer/nest-prisma-soft-delete/issues"
   }
 }
