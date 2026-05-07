@@ -6,11 +6,18 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "README.md"
   ],
   "scripts": {
     "build": "npx tsc",
     "prepare": "npm run build"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
   },
   "keywords": [
     "nestjs",
