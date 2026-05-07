@@ -1,4 +1,6 @@
-# Prisma Soft Delete for NestJS
+# @marcelorocfer/nest-prisma-soft-delete
+
+Soft Delete extension for Prisma ORM with seamless NestJS integration.
 
 Este pacote fornece uma solução robusta e moderna para implementar Soft Delete no Prisma ORM dentro do ecossistema NestJS, utilizando o poder das **Prisma Client Extensions**.
 
@@ -14,12 +16,10 @@ Este pacote fornece uma solução robusta e moderna para implementar Soft Delete
 
 Para instalar o pacote no seu projeto (ex: `new-modelo-soft-delete`), siga os passos abaixo:
 
-### 1. Instalar via Git
-
-Este pacote **não está publicado no NPM**. Para utilizá-lo, você deve instalá-lo diretamente do GitHub:
+## 📦 Instalação
 
 ```bash
-npm install https://github.com/marcelorocfer/nest-prisma-soft-delete.git
+npm install @marcelorocfer/nest-prisma-soft-delete
 ```
 
 ### 2. Configurar o Schema Prisma
@@ -126,7 +126,7 @@ Para operações avançadas, estenda o `SoftDeleteRepository`.
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SoftDeleteRepository } from 'nest-prisma-soft-delete';
+import { SoftDeleteRepository } from '@marcelorocfer/nest-prisma-soft-delete';
 import { User, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -151,4 +151,8 @@ A extensão **não propaga automaticamente** o Soft Delete para relações (Casc
 Se você deletar um `User`, os `Posts` relacionados não serão marcados como deletados automaticamente. Recomenda-se tratar deleções em cascata na camada de serviço ou via triggers no banco de dados para garantir a integridade.
 
 ---
-Desenvolvido para máxima performance e compatibilidade com as versões mais recentes do Prisma.
+Designed for modern Prisma applications with minimal boilerplate and seamless NestJS integration.
+
+## 📄 License
+
+MIT
