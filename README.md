@@ -2,65 +2,74 @@
 
 Soft Delete extension for Prisma ORM with seamless NestJS integration.
 
-Este pacote fornece uma solução robusta e moderna para implementar Soft Delete no Prisma ORM dentro do ecossistema NestJS, utilizando o poder das **Prisma Client Extensions**.
+This package provides a robust and modern solution for implementing Soft Delete in Prisma ORM within the NestJS ecosystem, leveraging the power of **Prisma Client Extensions**.
 
-## 🚀 Funcionalidades Principais
+## 🚀 Main Features
 
-- **Filtro Automático**: Todas as operações de leitura (`findMany`, `findFirst`, `count`, etc.) filtram automaticamente registros deletados por padrão.
-- **Transformação de Deleção**: Chamadas para `delete` e `deleteMany` são interceptadas e transformadas em atualizações do campo `deletedAt`.
-- **Suporte a findUnique**: Converte automaticamente `findUnique` para `findFirst` quando filtros de soft delete são aplicados, garantindo consistência.
-- **Flags de Consulta**: Permite buscar registros deletados (`_withTrashed`) ou apenas deletados (`_onlyTrashed`) diretamente na cláusula `where`.
-- **Repository Base**: Abstração pronta para operações de `restore`, `forceDelete` e consultas especializadas.
+- **Automatic Filtering**: All read operations (`findMany`, `findFirst`, `count`, etc.) automatically filter out deleted records by default.
+- **Delete Transformation**: Calls to `delete` and `deleteMany` are intercepted and transformed into updates to the `deletedAt` field.
+- **findUnique Support**: Automatically converts `findUnique` into `findFirst` when soft delete filters are applied, ensuring consistency.
+- **Query Flags**: Allows querying deleted records (`_withTrashed`) or only deleted records (`_onlyTrashed`) directly in the `where` clause.
+- **Base Repository**: Ready-to-use abstraction for `restore`, `forceDelete`, and specialized queries.
 
-## 📦 Instalação e Setup
+---
 
-Para instalar o pacote no seu projeto (ex: `new-modelo-soft-delete`), siga os passos abaixo:
+# 📦 Installation and Setup
 
-## 📦 Instalação
+To install the package in your project, follow the steps below.
+
+## 📦 Installation
 
 ```bash
 npm install @marcelorocfer/nest-prisma-soft-delete
 ```
 
-### 2. Configurar o Schema Prisma
+---
 
-Para o Soft Delete funcionar, o seu modelo **precisa seguir algumas regras obrigatórias**:
+## 2. Configure the Prisma Schema
 
-1. Adicionar o campo com o nome **exato** de `deletedAt`.
-2. O tipo deve ser obrigatoriamente `DateTime?` (opcional).
-3. Caso seu banco de dados use `snake_case`, você deve mapear usando `@map`, mas o nome da propriedade Prisma deve se manter `deletedAt`.
+For Soft Delete to work, your model **must follow some mandatory rules**:
+
+1. Add a field with the **exact** name `deletedAt`.
+2. The type must strictly be `DateTime?` (optional).
+3. If your database uses `snake_case`, you must map it using `@map`, but the Prisma property name must remain `deletedAt`.
 
 ```prisma
 model User {
   id        Int       @id @default(autoincrement())
-  // ... outros campos
-  deletedAt DateTime? // OBRIGATÓRIO: O nome deve ser exatamente 'deletedAt'
-  // deletedAt DateTime? @map("deleted_at") // Use assim se precisar de snake_case no banco
+  // ... other fields
+  deletedAt DateTime? // REQUIRED: The field name must be exactly 'deletedAt'
+
+  // Use this if you need snake_case in the database:
+  // deletedAt DateTime? @map("deleted_at")
 }
 ```
 
-Não esqueça de rodar a migration após alterar o schema:
+Run the migration after updating the schema:
+
 ```bash
 npx prisma migrate dev --name add_soft_delete_to_user
 ```
 
+---
 
-### 3. Registrar a Extensão no PrismaService
+## 3. Register the Extension in PrismaService
 
-No seu `PrismaService`, importe e configure a extensão:
+In your `PrismaService`, import and configure the extension:
 
 ```typescript
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { softDeleteExtension } from 'nest-prisma-soft-delete'; // Nome do pacote após instalação
+import { softDeleteExtension } from '@marcelorocfer/nest-prisma-soft-delete';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super();
+
     return this.$extends(
       softDeleteExtension({
-        models: ['User'], // ATENÇÃO: O nome deve ser em PascalCase, exatamente como definido no schema Prisma!
+        models: ['User'], // Must be PascalCase, exactly as defined in Prisma schema
       }),
     ) as any;
   }
@@ -71,57 +80,69 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 }
 ```
 
-## 📄 Schema Prisma
+---
 
-Todo model habilitado para soft delete deve possuir o campo `deletedAt`.
+# 📄 Prisma Schema
+
+Every model enabled for soft delete must contain the `deletedAt` field.
 
 ```prisma
 model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   name      String?
-  deletedAt DateTime? // Campo obrigatório
+  deletedAt DateTime?
 }
 ```
 
-## 🛠️ Uso Básico
+---
 
-Com a extensão registrada, as queries do Prisma são interceptadas automaticamente.
+# 🛠️ Basic Usage
 
-### Operações de Leitura
+Once the extension is registered, Prisma queries are automatically intercepted.
+
+## Read Operations
 
 ```typescript
-// Retorna apenas registros ativos (deletedAt == null)
+// Returns only active records (deletedAt == null)
 const users = await prisma.user.findMany();
 
-// Incluir deletados na busca
+// Include deleted records
 const allUsers = await prisma.user.findMany({
   where: { _withTrashed: true }
 });
 
-// Apenas registros deletados
+// Only deleted records
 const deletedUsers = await prisma.user.findMany({
   where: { _onlyTrashed: true }
 });
 ```
 
-### Deletar (Soft Delete)
+---
+
+## Delete Operations (Soft Delete)
 
 ```typescript
-// Atualiza o campo deletedAt com o timestamp atual
+// Updates deletedAt with current timestamp
 await prisma.user.delete({
   where: { id: 1 }
 });
 
-// O mesmo funciona para deleteMany
+// Works with deleteMany too
 await prisma.user.deleteMany({
-  where: { email: { contains: '@test.com' } }
+  where: {
+    email: {
+      contains: '@test.com'
+    }
+  }
 });
 ```
 
-## 🏗️ SoftDeleteRepository
+---
 
-Para operações avançadas, estenda o `SoftDeleteRepository`.
+# 🏗️ SoftDeleteRepository
+
+For advanced operations, extend `SoftDeleteRepository`.
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -130,29 +151,37 @@ import { SoftDeleteRepository } from '@marcelorocfer/nest-prisma-soft-delete';
 import { User, Prisma } from '@prisma/client';
 
 @Injectable()
-export class UsersRepository extends SoftDeleteRepository<User, Prisma.UserWhereInput> {
+export class UsersRepository extends SoftDeleteRepository<
+  User,
+  Prisma.UserWhereInput
+> {
   constructor(prisma: PrismaService) {
     super(prisma, 'user');
   }
 
-  // Métodos disponíveis:
+  // Available methods:
   // this.softDelete(id)
   // this.restore(id)
-  // this.forceDelete(id) // Deleção física real via $executeRaw
+  // this.forceDelete(id)
   // this.findWithTrashed(where)
   // this.findOnlyTrashed(where)
 }
 ```
 
-## ⚠️ Aviso sobre Relacionamentos
+---
 
-A extensão **não propaga automaticamente** o Soft Delete para relações (Cascade). 
+# ⚠️ Relationship Warning
 
-Se você deletar um `User`, os `Posts` relacionados não serão marcados como deletados automaticamente. Recomenda-se tratar deleções em cascata na camada de serviço ou via triggers no banco de dados para garantir a integridade.
+This extension **does not automatically propagate** Soft Delete to related entities (cascade behavior).
+
+If you delete a `User`, related `Posts` will not automatically be marked as deleted.
+
+It is recommended to handle cascade deletions at the service layer or through database triggers to ensure data integrity.
 
 ---
+
 Designed for modern Prisma applications with minimal boilerplate and seamless NestJS integration.
 
-## 📄 License
+# 📄 License
 
 MIT
