@@ -1,4 +1,4 @@
-# @marcelorocfer/nest-prisma-soft-delete
+# Soft Delete extension for Prisma ORM
 
 Soft Delete extension for Prisma ORM with seamless NestJS integration.
 
